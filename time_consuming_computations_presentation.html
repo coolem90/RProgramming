@@ -64,31 +64,31 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 </div>
 <div id="two-functions-for-preparation" class="section level1">
 <h1>Two functions for preparation</h1>
-<p>Caching the Mean of a Vector</p>
-<pre class="r"><code>makeVector &lt;- function(x = numeric()) {
-        m &lt;- NULL
-        set &lt;- function(y) {
-                x &lt;&lt;- y
-                m &lt;&lt;- NULL
-        }
-        get &lt;- function() x
-        setmean &lt;- function(mean) m &lt;&lt;- mean
-        getmean &lt;- function() m
-        list(set = set, get = get,
-             setmean = setmean,
-             getmean = getmean)
+<p>makeCacheMatrix: This function creates a special “matrix” object that can cache its inverse. makeCacheMatrix creates a list containing a function to 1. set the value of the matrix 2. get the value of the matrix 3. set the value of inverse of the matrix 4. get the value of inverse of the matrix</p>
+<pre class="r"><code>makeCacheMatrix &lt;- function(x = numeric()) {
+  i &lt;- NULL
+  set &lt;- function(y) {
+    x &lt;&lt;- y
+    i  &lt;&lt;- NULL
+  }
+  get &lt;- function() x
+  setinverse &lt;- function(inverse) i &lt;&lt;- inverse 
+  getinverse &lt;- function() i
+  list(set = set, get = get,
+       setinverse  = setinverse ,
+       getinverse  = getinverse )
 }</code></pre>
-<p>cachemean</p>
-<pre class="r"><code>cachemean &lt;- function(x, ...) {
-        m &lt;- x$getmean()
-        if(!is.null(m)) {
-                message(&quot;getting cached data&quot;)
-                return(m)
-        }
-        data &lt;- x$get()
-        m &lt;- mean(data, ...)
-        x$setmean(m)
-        m
+<p>cachemean: returns the inverse of the matrix. Checking if getinverse can get the data firstly.If not, it will return an error message; otherwise, it will proceed the inverse.</p>
+<pre class="r"><code>cacheSolve &lt;- function(x, ...) {
+  i &lt;- x$getinverse()
+  if(!is.null(i)) {
+    message(&quot;getting cached data.&quot;)
+    return(i)
+  }
+  data &lt;- x$get()
+  i &lt;- solve(data)
+  x$setinverse(i)
+  i
 }</code></pre>
 <p>However, I save these two function in my local driver and called time_consuming.R.</p>
 </div>
@@ -96,60 +96,35 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <h1>Start to run</h1>
 <p>Call the function</p>
 <pre class="r"><code>source(&quot;time_consuming.R&quot;)</code></pre>
-<p>Create the matrix and list the top three rows</p>
+<p>Create the matrix and list row data</p>
 <pre class="r"><code>source(&quot;time_consuming.R&quot;)
-data&lt;-matrix(1:2500,50,50)
-head(data,3);</code></pre>
-<pre><code>##      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
-## [1,]    1   51  101  151  201  251  301  351  401   451   501   551   601
-## [2,]    2   52  102  152  202  252  302  352  402   452   502   552   602
-## [3,]    3   53  103  153  203  253  303  353  403   453   503   553   603
-##      [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24]
-## [1,]   651   701   751   801   851   901   951  1001  1051  1101  1151
-## [2,]   652   702   752   802   852   902   952  1002  1052  1102  1152
-## [3,]   653   703   753   803   853   903   953  1003  1053  1103  1153
-##      [,25] [,26] [,27] [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35]
-## [1,]  1201  1251  1301  1351  1401  1451  1501  1551  1601  1651  1701
-## [2,]  1202  1252  1302  1352  1402  1452  1502  1552  1602  1652  1702
-## [3,]  1203  1253  1303  1353  1403  1453  1503  1553  1603  1653  1703
-##      [,36] [,37] [,38] [,39] [,40] [,41] [,42] [,43] [,44] [,45] [,46]
-## [1,]  1751  1801  1851  1901  1951  2001  2051  2101  2151  2201  2251
-## [2,]  1752  1802  1852  1902  1952  2002  2052  2102  2152  2202  2252
-## [3,]  1753  1803  1853  1903  1953  2003  2053  2103  2153  2203  2253
-##      [,47] [,48] [,49] [,50]
-## [1,]  2301  2351  2401  2451
-## [2,]  2302  2352  2402  2452
-## [3,]  2303  2353  2403  2453</code></pre>
-<p>Run the makeVector function to creates a special “matrix” object that can cache its inverse</p>
-<pre class="r"><code>f&lt;-makeVector(data)</code></pre>
-<p>Check data is correct and only list the top three rows.</p>
-<pre class="r"><code>head(f$get(),3);</code></pre>
-<pre><code>##      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
-## [1,]    1   51  101  151  201  251  301  351  401   451   501   551   601
-## [2,]    2   52  102  152  202  252  302  352  402   452   502   552   602
-## [3,]    3   53  103  153  203  253  303  353  403   453   503   553   603
-##      [,14] [,15] [,16] [,17] [,18] [,19] [,20] [,21] [,22] [,23] [,24]
-## [1,]   651   701   751   801   851   901   951  1001  1051  1101  1151
-## [2,]   652   702   752   802   852   902   952  1002  1052  1102  1152
-## [3,]   653   703   753   803   853   903   953  1003  1053  1103  1153
-##      [,25] [,26] [,27] [,28] [,29] [,30] [,31] [,32] [,33] [,34] [,35]
-## [1,]  1201  1251  1301  1351  1401  1451  1501  1551  1601  1651  1701
-## [2,]  1202  1252  1302  1352  1402  1452  1502  1552  1602  1652  1702
-## [3,]  1203  1253  1303  1353  1403  1453  1503  1553  1603  1653  1703
-##      [,36] [,37] [,38] [,39] [,40] [,41] [,42] [,43] [,44] [,45] [,46]
-## [1,]  1751  1801  1851  1901  1951  2001  2051  2101  2151  2201  2251
-## [2,]  1752  1802  1852  1902  1952  2002  2052  2102  2152  2202  2252
-## [3,]  1753  1803  1853  1903  1953  2003  2053  2103  2153  2203  2253
-##      [,47] [,48] [,49] [,50]
-## [1,]  2301  2351  2401  2451
-## [2,]  2302  2352  2402  2452
-## [3,]  2303  2353  2403  2453</code></pre>
+data&lt;- rbind(c(1, 2), c(2, 1))
+data;</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    1    2
+## [2,]    2    1</code></pre>
+<p>Check the inverse matrix fistly.</p>
+<pre class="r"><code>solve(data)</code></pre>
+<pre><code>##            [,1]       [,2]
+## [1,] -0.3333333  0.6666667
+## [2,]  0.6666667 -0.3333333</code></pre>
+<p>Run the makeCacheMatrix function to creates a special “matrix” object that can cache its inverse</p>
+<pre class="r"><code>f&lt;-makeCacheMatrix(data)</code></pre>
+<p>Check if get is able to display the data.</p>
+<pre class="r"><code>f$get();</code></pre>
+<pre><code>##      [,1] [,2]
+## [1,]    1    2
+## [2,]    2    1</code></pre>
 <p>Run cachemean fucntion to calculate the mean and return the value to makeVctor function</p>
-<pre class="r"><code>cachemean(f)</code></pre>
-<pre><code>## [1] 1250.5</code></pre>
-<p>Check if using f$getmean function is albe to get the value of mean.</p>
-<pre class="r"><code>f$getmean();</code></pre>
-<pre><code>## [1] 1250.5</code></pre>
+<pre class="r"><code>cacheSolve(f)</code></pre>
+<pre><code>##            [,1]       [,2]
+## [1,] -0.3333333  0.6666667
+## [2,]  0.6666667 -0.3333333</code></pre>
+<p>Check if using getinverse function is albe to display the inverse matrix.</p>
+<pre class="r"><code>f$getinverse();</code></pre>
+<pre><code>##            [,1]       [,2]
+## [1,] -0.3333333  0.6666667
+## [2,]  0.6666667 -0.3333333</code></pre>
 </div>
 
 

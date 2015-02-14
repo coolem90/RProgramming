@@ -12,43 +12,47 @@ This second programming assignment will require you to write an R function is ab
 
 #Two functions for preparation
 
-Caching the Mean of a Vector
+makeCacheMatrix: This function creates a special "matrix" object that can cache its inverse.
+makeCacheMatrix creates a list containing a function to
+1. set the value of the matrix
+2. get the value of the matrix
+3. set the value of inverse of the matrix
+4. get the value of inverse of the matrix
 
 ```{r,results='hide'}
 
-makeVector <- function(x = numeric()) {
-        m <- NULL
-        set <- function(y) {
-                x <<- y
-                m <<- NULL
-        }
-        get <- function() x
-        setmean <- function(mean) m <<- mean
-        getmean <- function() m
-        list(set = set, get = get,
-             setmean = setmean,
-             getmean = getmean)
+makeCacheMatrix <- function(x = numeric()) {
+  i <- NULL
+  set <- function(y) {
+    x <<- y
+    i  <<- NULL
+  }
+  get <- function() x
+  setinverse <- function(inverse) i <<- inverse 
+  getinverse <- function() i
+  list(set = set, get = get,
+       setinverse  = setinverse ,
+       getinverse  = getinverse )
 }
 
 ```
 
 
-cachemean
+cachemean: returns the inverse of the matrix. Checking if getinverse can get the data firstly.If not, it will return an error message; otherwise, it will proceed the inverse.
 
 ```{r,results='hide'}
 
-cachemean <- function(x, ...) {
-        m <- x$getmean()
-        if(!is.null(m)) {
-                message("getting cached data")
-                return(m)
-        }
-        data <- x$get()
-        m <- mean(data, ...)
-        x$setmean(m)
-        m
+cacheSolve <- function(x, ...) {
+  i <- x$getinverse()
+  if(!is.null(i)) {
+    message("getting cached data.")
+    return(i)
+  }
+  data <- x$get()
+  i <- solve(data)
+  x$setinverse(i)
+  i
 }
-
 ```
 
 However, I save these two function in my local driver and called time_consuming.R.
@@ -60,33 +64,37 @@ Call the function
 source("time_consuming.R")
 ```
 
-Create the matrix and list the top three rows
+Create the matrix and list row data
 ```{r}
 source("time_consuming.R")
-data<-matrix(1:2500,50,50)
-head(data,3);
+data<- rbind(c(1, 2), c(2, 1))
+data;
+```
+
+Check the inverse matrix fistly.
+```{r}
+solve(data)
+```
+
+Run the makeCacheMatrix function to creates a special "matrix" object that can cache its inverse
+```{r}
+f<-makeCacheMatrix(data)
 ```
 
 
-Run the makeVector function to creates a special "matrix" object that can cache its inverse
+Check if get is able to display the data.
 ```{r}
-f<-makeVector(data)
-```
-
-
-Check data is correct and only list the top three rows.
-```{r}
-head(f$get(),3);
+f$get();
 ```
 
 Run cachemean fucntion to calculate the mean and return the value to makeVctor function
 ```{r}
-cachemean(f)
+cacheSolve(f)
 ```
 
 
-Check if using f$getmean function is albe to get the value of mean.
+Check if using getinverse function is albe to display the inverse matrix.
 ```{r}
-f$getmean();
+f$getinverse();
 ```
 

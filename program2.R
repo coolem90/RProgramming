@@ -3,21 +3,21 @@ setwd("E:/Course/Johns hopkins_Data Science/R Programming/Program2/")
 source("time_consuming.R")
 
 # create the matrix 
-data<-matrix(1:2500,50,50)
-#list the top three rows from raw data
-head(data,3);
+data<- rbind(c(1, 2), c(2, 1))
+#list raw data
+data;
 
 #run funciton
-f<-makeVector(data)
+f<-makeCacheMatrix(data)
 
-#summary
-summary(f);
-
-#list  the top three rows from makeVector function
-head(f$get(),3);
+#list  the top three rows from makeCacheMatrix function
+f$get();
 
 #run funciton
-cachemean(f)
+cacheSolve(f)
 
-#see if data can be returned to makeVector
-f$getmean();
+#see if data can be returned to makeCacheMatrix
+f$getinverse();
+
+
+solve(data) ;
