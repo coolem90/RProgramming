@@ -1,0 +1,92 @@
+---
+title: "R Programming-caching potentially time-consuming computations"
+author: "Anita Lin"
+date: "Saturday, February 14, 2015"
+output: html_document
+---
+
+#Introduction
+
+This second programming assignment will require you to write an R function is able to cache potentially time-consuming computations. For example, taking the mean of a numeric vector is typically a fast operation. However, for a very long vector, it may take too long to compute the mean, especially if it has to be computed repeatedly (e.g. in a loop). If the contents of a vector are not changing, it may make sense to cache the value of the mean so that when we need it again, it can be looked up in the cache rather than recomputed. In this Programming Assignment will take advantage of the scoping rules of the R language and how they can be manipulated to preserve state inside of an R object.
+
+
+#Two functions for preparation
+
+Caching the Mean of a Vector
+
+```{r,results='hide'}
+
+makeVector <- function(x = numeric()) {
+        m <- NULL
+        set <- function(y) {
+                x <<- y
+                m <<- NULL
+        }
+        get <- function() x
+        setmean <- function(mean) m <<- mean
+        getmean <- function() m
+        list(set = set, get = get,
+             setmean = setmean,
+             getmean = getmean)
+}
+
+```
+
+
+cachemean
+
+```{r,results='hide'}
+
+cachemean <- function(x, ...) {
+        m <- x$getmean()
+        if(!is.null(m)) {
+                message("getting cached data")
+                return(m)
+        }
+        data <- x$get()
+        m <- mean(data, ...)
+        x$setmean(m)
+        m
+}
+
+```
+
+However, I save these two function in my local driver and called time_consuming.R.
+
+
+#Start to run
+Call the function
+```{r}
+source("time_consuming.R")
+```
+
+Create the matrix and list the top three rows
+```{r}
+source("time_consuming.R")
+data<-matrix(1:2500,50,50)
+head(data,3);
+```
+
+
+Run the makeVector function to creates a special "matrix" object that can cache its inverse
+```{r}
+f<-makeVector(data)
+```
+
+
+Check data is correct and only list the top three rows.
+```{r}
+head(f$get(),3);
+```
+
+Run cachemean fucntion to calculate the mean and return the value to makeVctor function
+```{r}
+cachemean(f)
+```
+
+
+Check if using f$getmean function is albe to get the value of mean.
+```{r}
+f$getmean();
+```
+
